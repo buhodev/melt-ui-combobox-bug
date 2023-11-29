@@ -95,9 +95,11 @@
 		debounceTimer = setTimeout(callback, 450);
 	};
 
-	$: if (!$open) {
-		$inputValueCombobox = $selectedCombobox?.label ?? '';
-	}
+	const toOption = (manga: Manga): ComboboxOptionProps<Manga> => ({
+		value: manga,
+		label: manga.title,
+		disabled: manga.disabled,
+	});
 
 	let filteredMangas = mangas;
 	$: {
@@ -130,12 +132,11 @@
 			<form
 				class="group absolute inset-x-0 top-4 mx-4 h-8 w-auto overflow-hidden rounded-lg bg-slate-200/50 text-slate-400 focus-within:bg-slate-100 disabled:opacity-25 dark:bg-slate-700 dark:text-slate-200 dark:focus-within:bg-slate-700 dark:focus-within:text-slate-100 sm:justify-start"
 			>
-				<label for="search-mobile" class="sr-only">Search</label>
+				<label use:melt={$labelCombobox} class="sr-only">Search</label>
 
 				<input
 					use:melt={$inputCombobox}
 					autocomplete="off"
-					id="search-mobile"
 					type="text"
 					class="h-8 w-full border-0 bg-transparent py-1 text-gray-900 placeholder:text-gray-400 px-2 dark:text-white dark:placeholder:text-gray-500"
 					placeholder="Search..."
@@ -146,18 +147,14 @@
 					{#if $openCombobox}
 						<ul class="z-10 flex max-h-[300px] flex-col overflow-hidden rounded-lg" use:melt={$menuCombobox}>
 							<div class="flex max-h-full flex-col gap-0 overflow-y-auto bg-white px-2 py-2 text-black">
-								{#each filteredMangas as book, index (index)}
+								{#each filteredMangas as manga, index (index)}
 									<li
-										use:melt={$optionCombobox({
-											value: book,
-											label: book.title,
-											disabled: book.disabled
-										})}
+										use:melt={$optionCombobox(toOption(manga))}
 										class="relative cursor-pointer scroll-my-2 rounded-md py-2 pl-4 pr-4 data-[highlighted]:bg-blue-200 data-[highlighted]:text-blue-900 data-[disabled]:opacity-50"
 									>
 										<div class="pl-4">
-											<span class="font-medium">{book.title}</span>
-											<span class="block text-sm opacity-75">{book.author}</span>
+											<span class="font-medium">{manga.title}</span>
+											<span class="block text-sm opacity-75">{manga.author}</span>
 										</div>
 									</li>
 								{:else}
